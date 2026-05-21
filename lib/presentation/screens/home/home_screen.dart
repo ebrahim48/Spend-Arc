@@ -7,6 +7,7 @@ import '../../blocs/transactions/transactions_bloc.dart';
 import '../../blocs/budget/budget_bloc.dart';
 import '../../blocs/sync/sync_bloc.dart';
 import '../../widgets/transaction_card.dart';
+import '../../widgets/transaction_detail_sheet.dart';
 import '../../widgets/sync_status_bar.dart';
 import '../add_transaction/add_transaction_screen.dart';
 
@@ -270,23 +271,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 return TransactionCard(
                   key: ValueKey(t.id),
                   transaction: t,
-                  onDelete: () {
-                    final bloc = context.read<TransactionsBloc>();
-                    bloc.add(DeleteTransactionEvent(t.id));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Transaction deleted'),
-                        backgroundColor: AppColors.surface,
-                        action: SnackBarAction(
-                          label: 'Undo',
-                          textColor: AppColors.primary,
-                          onPressed: () =>
-                              bloc.add(UndoDeleteTransaction(t)),
-                        ),
-                      ),
-                    );
-                  },
-                  onTap: () => _openEditTransaction(context, t),
+                  onDelete: () => _deleteTransaction(context, t),
+                  onTap: () => _openDetailSheet(context, t),
                 );
               },
               childCount: transactions.length,
@@ -294,6 +280,37 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
+    );
+  }
+
+  void _openDetailSheet(BuildContext context, Transaction t) {
+    final transBloc = context.read<TransactionsBloc>();
+    final budgetBloc = context.read<BudgetBloc>();
+    TransactionDetailSheet.show(
+      context,
+      transaction: t,
+      onEdit: () => _openEditTransaction(context, t, transBloc, budgetBloc),
+      onDelete: () => _deleteTransaction(context, t),
+    );
+  }
+
+  void _deleteTransaction(BuildContext context, Transaction t) {
+    final bloc = context.read<TransactionsBloc>();
+    bloc.add(DeleteTransactionEvent(t.id));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('"${t.title}" deleted'),
+        backgroundColor: AppColors.surface,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        action: SnackBarAction(
+          label: 'Undo',
+          textColor: AppColors.primary,
+          onPressed: () => bloc.add(UndoDeleteTransaction(t)),
+        ),
+      ),
     );
   }
 
@@ -325,15 +342,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _openEditTransaction(BuildContext context, Transaction t) {
-    final transBloc = context.read<TransactionsBloc>();
-    final budgetBloc = context.read<BudgetBloc>();
+  void _openEditTransaction(
+    BuildContext context,
+    Transaction t, [
+    TransactionsBloc? transBloc,
+    BudgetBloc? budgetBloc,
+  ]) {
+    final tb = transBloc ?? context.read<TransactionsBloc>();
+    final bb = budgetBloc ?? context.read<BudgetBloc>();
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (_, animation, __) => MultiBlocProvider(
           providers: [
-            BlocProvider.value(value: transBloc),
-            BlocProvider.value(value: budgetBloc),
+            BlocProvider.value(value: tb),
+            BlocProvider.value(value: bb),
           ],
           child: AddTransactionScreen(existing: t),
         ),

@@ -131,7 +131,17 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
+        title: Row(
+          children: [
+            Icon(
+              _isEditing ? Icons.edit_rounded : Icons.add_circle_outline_rounded,
+              color: AppColors.primary,
+              size: 22,
+            ),
+            const SizedBox(width: 8),
+            Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
+          ],
+        ),
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
           onPressed: () => Navigator.of(context).pop(),

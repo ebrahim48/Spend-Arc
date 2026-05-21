@@ -3,7 +3,6 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../domain/entities/transaction.dart';
 import 'animations/spring_swipe_delete.dart';
-import 'animations/particle_burst.dart';
 
 class TransactionCard extends StatefulWidget {
   final Transaction transaction;
@@ -26,7 +25,6 @@ class _TransactionCardState extends State<TransactionCard>
   late AnimationController _entryController;
   late Animation<double> _scaleAnim;
   late Animation<double> _fadeAnim;
-  bool _burstTrigger = false;
 
   @override
   void initState() {
@@ -35,7 +33,7 @@ class _TransactionCardState extends State<TransactionCard>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-    _scaleAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
+    _scaleAnim = Tween<double>(begin: 0.92, end: 1.0).animate(
       CurvedAnimation(parent: _entryController, curve: Curves.easeOutBack),
     );
     _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -81,16 +79,15 @@ class _TransactionCardState extends State<TransactionCard>
       opacity: _fadeAnim,
       child: ScaleTransition(
         scale: _scaleAnim,
-        child: SpringSwipeDelete(
-          onDelete: widget.onDelete,
-          child: ParticleBurst(
-            trigger: _burstTrigger,
-            colors: [_categoryColor, AppColors.primary, AppColors.secondary],
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: SpringSwipeDelete(
+            onDelete: widget.onDelete,
             child: GestureDetector(
               onTap: widget.onTap,
               child: Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -100,21 +97,32 @@ class _TransactionCardState extends State<TransactionCard>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(18),
                   border: Border.all(
                     color: AppColors.divider,
                     width: 1,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
-                    // Category icon
+                    // Category icon circle
                     Container(
-                      width: 48,
-                      height: 48,
+                      width: 50,
+                      height: 50,
                       decoration: BoxDecoration(
                         color: _categoryColor.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(
+                          color: _categoryColor.withOpacity(0.3),
+                          width: 1,
+                        ),
                       ),
                       child: Center(
                         child: Text(
@@ -124,7 +132,8 @@ class _TransactionCardState extends State<TransactionCard>
                       ),
                     ),
                     const SizedBox(width: 14),
-                    // Title & date
+
+                    // Title & meta
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,26 +144,30 @@ class _TransactionCardState extends State<TransactionCard>
                               color: AppColors.textPrimary,
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
+                              letterSpacing: -0.2,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 5),
                           Row(
                             children: [
-                              Text(
-                                widget.transaction.category.displayName,
-                                style: TextStyle(
-                                  color: _categoryColor,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 7, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color:
+                                      _categoryColor.withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(5),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                '·',
-                                style: const TextStyle(
-                                    color: AppColors.textSecondary),
+                                child: Text(
+                                  widget.transaction.category.displayName,
+                                  style: TextStyle(
+                                    color: _categoryColor,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                               const SizedBox(width: 8),
                               Text(
@@ -162,7 +175,7 @@ class _TransactionCardState extends State<TransactionCard>
                                     widget.transaction.date),
                                 style: const TextStyle(
                                   color: AppColors.textSecondary,
-                                  fontSize: 12,
+                                  fontSize: 11,
                                 ),
                               ),
                             ],
@@ -170,12 +183,13 @@ class _TransactionCardState extends State<TransactionCard>
                         ],
                       ),
                     ),
-                    // Amount + sync indicator
+
+                    // Amount + sync
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '${isIncome ? '+' : '-'}${CurrencyFormatter.format(widget.transaction.amount)}',
+                          '${isIncome ? '+' : '-'}\$${widget.transaction.amount.toStringAsFixed(2)}',
                           style: TextStyle(
                             color: isIncome
                                 ? AppColors.income
@@ -184,19 +198,40 @@ class _TransactionCardState extends State<TransactionCard>
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 5),
                         if (!widget.transaction.isSynced)
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
+                                horizontal: 7, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppColors.warning.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(4),
+                              color: AppColors.warning.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(
+                                color: AppColors.warning.withOpacity(0.3),
+                                width: 1,
+                              ),
                             ),
                             child: const Text(
                               'Pending',
                               style: TextStyle(
                                 color: AppColors.warning,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          )
+                        else
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 7, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.income.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: const Text(
+                              'Synced',
+                              style: TextStyle(
+                                color: AppColors.income,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w500,
                               ),
