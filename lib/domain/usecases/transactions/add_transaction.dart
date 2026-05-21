@@ -17,6 +17,7 @@ class AddTransaction implements UseCase<Transaction, AddTransactionParams> {
 
 class AddTransactionParams extends Equatable {
   final Transaction transaction;
+
   const AddTransactionParams({required this.transaction});
 
   @override
