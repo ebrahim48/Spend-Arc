@@ -55,3 +55,13 @@ flutter run
 ```bash
 flutter test
 ```
+
+<img width="1344" height="2992" alt="image" src="https://github.com/user-attachments/assets/d48ec595-692c-4ac5-99e7-81f136a751b9" />
+<img width="1344" height="2992" alt="image" src="https://github.com/user-attachments/assets/05a61a52-f6b2-4e0e-a7e7-aa15f53980f4" />
+<img width="1344" height="2992" alt="image" src="https://github.com/user-attachments/assets/f34ff771-3bf5-45fb-8912-30dd7c1c4037" />
+<img width="1344" height="2992" alt="image" src="https://github.com/user-attachments/assets/585e21b2-bd9d-4605-a322-17cf6feb0cbd" />
+
+
+
+
+
